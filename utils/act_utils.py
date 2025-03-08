@@ -155,11 +155,14 @@ def capture_layer_act(
     decoder_layer: nn.Module,
     layer_input: torch.Tensor,
     modules_to_capture_input: list[str],
+    modules_to_capture_output: list[str],
     dev: str,
     **kwargs: Any,
 ) -> None:
     with capture_activation(
-        decoder_layer, modules_to_capture_input, modules_to_capture_output=None
+        decoder_layer,
+        modules_to_capture_input,
+        modules_to_capture_output=modules_to_capture_output,
     ):
         # Process each sequence in the batch one by one to avoid OOM.
         nb, bs, sq, em = layer_input.shape
@@ -177,6 +180,7 @@ def capture_act(
     save_folder: Path | str,
     layers_to_capture: list[int] | None = None,
     modules_to_capture_input: list[str] | None = None,
+    modules_to_capture_output: list[str] | None = None,
     dev: str = "cpu",
     batch_size: int = 1,
 ) -> None:
@@ -192,9 +196,11 @@ def capture_act(
         layers_to_capture = list(range(len(model.model.layers)))
     if modules_to_capture_input is None:
         modules_to_capture_input = ["k_proj", "o_proj", "gate_proj", "down_proj"]
+    if modules_to_capture_output is None:
+        modules_to_capture_output = []
 
-    # No support for capturing output activations for now
     ActivationRegistry.set_input_modules(modules_to_capture_input)
+    ActivationRegistry.set_output_modules(modules_to_capture_output)
     ActivationRegistry.empty()
 
     layer_output = torch.zeros_like(layer_input)
@@ -207,6 +213,7 @@ def capture_act(
                 layer,
                 layer_input,
                 modules_to_capture_input,
+                modules_to_capture_output,
                 dev,
                 attention_mask=attention_mask,
                 position_embeddings=position_embeddings,

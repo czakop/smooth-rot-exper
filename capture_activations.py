@@ -1,10 +1,9 @@
 import argparse
 from utils import ModelType, load_model, get_wikitext2_sample, capture_act
 
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Capture activations of a model"
-    )
+    parser = argparse.ArgumentParser(description="Capture activations of a model")
 
     parser.add_argument(
         "--model",
@@ -63,6 +62,7 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
+
 def main():
     args = parse_args()
 
@@ -82,10 +82,12 @@ def main():
         input=input,
         save_folder=save_folder,
         layers_to_capture=args.layers,
-        modules_to_capture_input=None, # Use default modules to capture input
+        modules_to_capture_input=None,  # Use default modules to capture input
+        modules_to_capture_output=None,  # Use default modules to capture output
         dev=args.device,
         batch_size=args.batch_size,
     )
+
 
 if __name__ == "__main__":
     main()
